@@ -36,13 +36,11 @@ db.routes.insertMany([
   }
 ])
 
-
 # Listing 4.3 Using the $set operator
 db.routes.updateOne(
   { "airline.id": 411, "src_airport": "LHR", "dst_airport": "SFO", "airplane": "747" },
   { $set: { "airplane": "A380" } }
 )
-
 
 # Listing 4.4 Using the $inc operator
 db.routes.updateOne(
@@ -86,7 +84,6 @@ db.routes.updateOne(
   { $addToSet: { "prices": { class: 'economy plus', price: 1200 } } }
 )
 
-
 # Listing 4.8 Using the $pull operator
 db.routes.updateOne(
   { "airline.id": 413, "src_airport": "DFW", "dst_airport": "LAX" },
@@ -98,6 +95,38 @@ db.routes.updateOne(
   { "airline.id": 413, "src_airport": "DFW", "dst_airport": "LAX" },
   { $pop: { prices: 1 } } # Removes the last element
 )
+
+db.routes.updateOne( 
+   { "airline.id": 413, "src_airport": "DFW", "dst_airport": "LAX" }, 
+   { $set: { "prices.2.price": 950 } } 
+) 
+
+db.routes.updateOne( 
+    { 
+        "airline.id": 413, 
+        "src_airport": "DFW", 
+        "dst_airport": "LAX", 
+        "prices.class": "luxury" // Condition to identify the element 
+    }, 
+    { 
+        $set: { "prices.$.price": 3500 } // Using the positional operator to update the price 
+    } 
+) 
+
+# Listing 4.10 The $[<identifier>] operator with arrayFilters
+db.routes.updateOne( 
+    { "airline.id": 413, "src_airport": "DFW", "dst_airport": "LAX" }, 
+    { 
+        $set: { 
+            "prices.$[elem].price": 600 
+        } 
+    }, 
+    { 
+        arrayFilters: [ 
+            { "elem.class": "economy" } 
+        ] 
+    } 
+) 
 
 # Listing 4.11 Replacing a document in MongoDB
 db.routes.replaceOne(
