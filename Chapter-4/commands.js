@@ -56,6 +56,30 @@ db.routes.updateOne(
   { $push: { "prices": { class: "business", price: 2500 } } }
 )
 
+db.routes.updateOne( 
+    { "airline.id": 413, "src_airport": "DFW", "dst_airport": "LAX" }, 
+    { $push: { prices: { $each: [{ class: "economy", price: 800 }, { class: "first", price: 2000 }] } } } 
+) 
+
+db.routes.updateOne( 
+    { "airline.id": 413, "src_airport": "DFW", "dst_airport": "LAX" }, 
+    { 
+        $push: { 
+            prices: { 
+                $each: [ 
+                    { class: "premium economy", price: 1100 }, 
+                    { class: "luxury", price: 3000 } 
+                ], 
+                $sort: { price: 1 }, // Sorts prices 
+                $slice: -5 // Keeps the last 5 entries  
+            } 
+        } 
+    } 
+) 
+
+# Listing 4.6   The content of the document after an array update 
+db.routes.find({ "airline.id": 413, "src_airport": "DFW", "dst_airport": "LAX" }) 
+
 # Listing 4.7 Using $addToSet operator
 db.routes.updateOne(
   { "airline.id": 413, "src_airport": "DFW", "dst_airport": "LAX" },
@@ -103,6 +127,19 @@ db.customers.find({
   accounts: { $elemMatch: { $gt: 300000, $lt: 400000 } }
 })
 
+# Listing 4.20 Using deleteOne() method
+db.routes.deleteOne({
+  "airline.id": 417,
+  "src_airport": "MUC",
+  "dst_airport": "LAX"
+})
+
+# Listing 4.21 Using deleteMany() method
+db.routes.deleteMany({
+  "airline.id": 417,
+  "src_airport": "MUC",
+  "dst_airport": "LAX"
+})
 
 # Listing 4.22 Syntax of the bulkWrite command in MongoDB 8.0
 db.adminCommand({
@@ -147,6 +184,22 @@ db.adminCommand({
 })
 
 
+# Cursors - Manual iteration
+async function manualIteration() {
+  const cursor = db.routes.find();
+  while (await cursor.hasNext()) {
+    console.log(await cursor.next());
+  }
+}
+manualIteration();
+
+# Cursors - Fetch all documents into an array
+async function fetchAllDocuments() {
+  const cursor = db.routes.find({});
+  const allValues = await cursor.toArray();
+  console.log(allValues);
+}
+fetchAllDocuments();
 
 
 
