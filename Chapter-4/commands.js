@@ -241,9 +241,29 @@ accounts: { $size: 6 }
 
 db.routes.find({ "prices.price": {$lt: 1000}}); 
 
-# Listing Listing 4.19 Using nested document 
+# Listing 4.18  Using dot notation
+db.routes.find({"airline.name": "American Airlines", "airline.id": 413})
+
+# Listing 4.19 Using nested document 
 db.routes.find({ 
 "airline": { "id": 413, "name": "American Airlines", "alias": "AA", "iata": "AAL" } 
+}) 
+
+db.routes.find({ 
+  "prices.price": { $lte: 1000 } 
+}) 
+
+db.routes.find({ 
+  "prices.0.price": { $lte: 650 } 
+}) 
+
+db.routes.find({ 
+  prices: { 
+    $elemMatch: { 
+      class: 'business', 
+      price: { $lt: 1000 } 
+    } 
+  } 
 }) 
 
 # Listing 4.20 Using deleteOne() method
