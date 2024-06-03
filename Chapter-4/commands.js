@@ -143,18 +143,108 @@ db.routes.replaceOne(
 # Listing 4.12 Using logical operators
 db.routes.find({ "src_airport": "CDG", "dst_airport": "JFK" })
 
+db.routes.find({ 
+    $or: [ 
+        { "src_airport": "CDG" }, 
+        { "dst_airport": "JFK" } 
+    ] 
+}) 
+
+db.routes.find({ 
+    $or: [ 
+        { "src_airport": "CDG", "airline.name": { $ne: 'American Airlines' } },  // Find flights from CDG not operated by American Airlines 
+        { "dst_airport": "JFK", "airplane": { $ne: '777' } }  // Find flights to JFK not using a 777 airplane 
+    ] 
+})
+
+# Listing 4.13 Using $in and $nin operators
+db.routes.find({ src_airport: { $in: ['MUC', 'JFK', 'LHR', 'DFW'] } }) 
+
 # Listing 4.14 Using projection
 db.routes.find(
   {},
   { "airline.name": 1, "src_airport": 1, "dst_airport": 1, "_id": 0 }
 )
 
+db.routes.find( 
+  {},  
+  { "codeshare": 0, "stops": 0 } 
+) 
 
+db.routes.find({ 
+  "codeshare": "null" 
+}); 
+
+db.routes.find({ 
+ "codeshare": { $ne: null, $exists: true } 
+}) 
+
+db.routes.find({ 
+  "codeshare": { $exists: false } 
+}) 
+
+db.routes.find({ 
+"codeshare": { $type: "null"}  
+}) 
+
+db.routes.find({ 
+  "airline.name": {$regex: "air", $options: "i"} 
+}) 
+
+db.routes.find({ 
+"src_airport": { $regex: "^[BC]", $options: "i" } 
+}) 
+
+db.routes.find({ 
+"dst_airport": { $regex: "X$", $options: "i" }  // Matches destination airport codes ending with 'X' 
+}) 
+
+db.customers.find({ 
+accounts: 371138 
+}) 
+
+db.customers.find({ 
+ accounts: [371138, 324287, 276528, 332179, 422649, 387979] 
+}) 
+
+db.customers.find({ 
+accounts: [371138, 324287, 276528] 
+}) 
+
+# Listing 4.15 Using the $all operator
+db.customers.find({ 
+accounts: { $all: [371138, 324287, 276528] } 
+})
+
+db.customers.find({ 
+   accounts: { $gt: 300000 } 
+})
 
 # Listing 4.16 Using $elemMatch operator
 db.customers.find({
   accounts: { $elemMatch: { $gt: 300000, $lt: 400000 } }
 })
+
+db.customers.find({ 
+'accounts.1': 324287 
+}) 
+
+db.customers.find({ 
+  "tier_and_details.0df078f33aa74a2e9696e0520c1a828a.active": true, 
+  "accounts.0": { $gte: 300000 } 
+}) 
+
+# Listing 4.17 Using $size operator
+db.customers.find({ 
+accounts: { $size: 6 } 
+}) 
+
+db.routes.find({ "prices.price": {$lt: 1000}}); 
+
+# Listing Listing 4.19 Using nested document 
+db.routes.find({ 
+"airline": { "id": 413, "name": "American Airlines", "alias": "AA", "iata": "AAL" } 
+}) 
 
 # Listing 4.20 Using deleteOne() method
 db.routes.deleteOne({
